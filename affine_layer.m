@@ -21,13 +21,18 @@ classdef affine_layer < layer
             result = e.W * input + e.b;
         end;
         
-        function result = backward(e, forward, gradoutput)
-            
+        function result = backward(e, input, gradoutput)
+            input_bar = e.W' * gradoutput;
+            W_bar = gradoutput * input';
+            [Do, Di] = size(e.W);
+            b_bar = gradoutput; % TODO: fix if N > 1
+            paramvec_bar = [reshape(W_bar, Do * Di, 1); b_bar];
+            result = {input_bar, paramvec_bar};
         end
         
-        function e = change_dimensions(e, Di, Do)
+        function e = change_dimensions(e, Di)
             e.Di = Di;
-            e.Do = Do;
+            Do = e.Do;
             zeros_out = zeros(Do * Di, 1);
             tallw = normrnd(zeros_out, 0.08 * ones(Do * Di, 1));
             e.W = reshape(tallw, Do, Di);
