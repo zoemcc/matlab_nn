@@ -8,6 +8,7 @@ classdef rectifier_layer < layer
     methods
         function layer = rectifier_layer()
             layer.type = 'rectifier';
+            layer.initialized = false;
         end;
         
         function result = forward(e, input)

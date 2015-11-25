@@ -9,10 +9,12 @@ classdef euclidean_loss_layer < layer
         function layer = euclidean_loss_layer()
             layer.Do = 1;
             layer.type = 'euclidean_loss';
+            layer.initialized = false;
         end;
         
         function result = forward(e, input, target)
-            result = 0.5 * norm(input - target, 2) ^ 2;
+            intermediate = input - target;
+            result = 0.5 * norm(intermediate, 'fro') ^ 2 / size(input, 2);
         end;
         
         function result = backward(e, input, target, gradoutput)
