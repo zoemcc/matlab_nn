@@ -18,7 +18,7 @@ classdef euclidean_loss_layer < layer
         end;
         
         function result = backward(e, input, target, gradoutput)
-            result = {gradoutput * (input - target), []};
+            result = {gradoutput / size(input, 2) * (input - target), []};
         end
         
         function e = change_dimensions(e, Di)

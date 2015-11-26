@@ -34,7 +34,7 @@ classdef affine_layer < layer
             input_bar = e.W' * gradoutput;
             W_bar = gradoutput * input' + e.W * e.weight_decay;
             [Do, Di] = size(e.W);
-            b_bar = sum(gradoutput, 2); % TODO: fix if N > 1
+            b_bar = sum(gradoutput, 2);
             paramvec_bar = [reshape(W_bar, Do * Di, 1); b_bar];
             result = {input_bar, paramvec_bar};
         end

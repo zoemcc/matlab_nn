@@ -1,15 +1,14 @@
-function [ output ] = output_wrt_weight( net,  paramvec, layerid, input, target)
+function [ output ] = output_wrt_weight( net,  paramvec,  input, target)
 %OUTPUT_WRT_WEIGHT used for gradient checking of neural nets
 %   Detailed explanation goes here
-    layer = net.layers{layerid};
+
+    prev_params = net.get_flat_paramvec();
     
+    net.set_flat_paramvec(paramvec);
     
-    if (strcmp(layer.type, 'affine'))
-        layer.set_paramvec(paramvec);
-    else
-        'error, layer is not affine in output_wrt_weight'
-    end
     output = net.loss(input, target, false);
+    
+    net.set_flat_paramvec(prev_params);
     
 end
 
