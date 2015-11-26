@@ -29,4 +29,5 @@ pos_end_states = total_pos_end_states;
 axis_end_states = total_axis_end_states;
 
 experiment_file = './gps_trajopt_dataset.mat';
-save(experiment_file, 'x_trajs', 'u_trajs', 'pos_end_states', 'axis_end_states');
+% save(experiment_file, 'x_trajs', 'u_trajs', 'pos_end_states', 'axis_end_states');
+save(experiment_file, 'x_trajs', 'u_trajs');
