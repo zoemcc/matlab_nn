@@ -22,10 +22,9 @@ sqerror = 0.5 * (error)' * error;
 % backpropagation
 % variable_bar means 
 %    d(sqerror) / d(variable)
-% utilize that d(z)/d(x) = d(z)/d(y) * d(y)/d(x)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% TAKEOUT THIS CODE BEFORE RELEASE
+% TODO: TAKEOUT THIS CODE BEFORE RELEASE
 sqerror_bar = 1;
 error_bar   = error;
 y_bar       = -error;

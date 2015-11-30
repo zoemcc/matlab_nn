@@ -1,5 +1,8 @@
+% q3_starter.m
+
 % load neural net library
 addpath ../nn
+clear all
 
 % load heli sim stuff
 
@@ -14,7 +17,7 @@ f = @sim_heli;
 dt = 0.1; % we work with discrete time
 
 
-%%
+%
 % set up nn supervised training
 
 load('gps_trajopt_dataset_processed.mat');
@@ -34,10 +37,11 @@ layers{8} = euclidean_loss_layer();
 net = neural_network(layers, 15);
 
 numlayers = size(net.layers, 2);
+numparams = net.num_params;
 
 %
-stepsize = 0.005;
-T = 10001;
+stepsize = 0.0005;
+T = 10000;
 minibatch = 50;
 losses = zeros(T + 1, 1);
 
@@ -45,7 +49,7 @@ stepsize_decay = 0.1;
 num_steps_decay = 2500;
 
 % meansquare = 1;
-meansquare = ones(net.num_params, 1);
+meansquare = zeros(net.num_params, 1);
 epsilon_rmsprop = 0.9;
 
 k = 1;
@@ -53,51 +57,70 @@ full_loss = [];
 training_iter = [];
 meansquaresnorms = zeros(T, 1);
 gradnorms = zeros(T, 1);
+gradients = zeros(T, numparams);
+meansquares = zeros(T, numparams);
+
+rng(10);
 
 for t = 1:T
-    idxs = randperm(batch_size);
-    idxs = idxs(1:minibatch);
-    [loss, gradlosses] = net.forward_backward(x_data(:, idxs), u_data(:, idxs), false, true);
-
-%     gradlosses = gradlosses * 50;
-    cur_paramvec = net.get_flat_paramvec();
-    meansquare = epsilon_rmsprop * meansquare + (1 - epsilon_rmsprop) * (gradlosses) .^ 2;
-%     meansquare = epsilon_rmsprop * meansquare + (1 - epsilon_rmsprop) * norm(gradlosses, 2) ^ 2;
-%     delta_paramvec = stepsize * gradlosses;
-    delta_paramvec = stepsize * (gradlosses) ./ (sqrt(meansquare) + 1e-8);
-    meansquaresnorms(t) = norm(meansquare);
-    gradnorms(t) = norm(gradlosses);
-    new_paramvec = cur_paramvec - delta_paramvec;
-    net.set_flat_paramvec(new_paramvec);
-    if (mod(t - 1, 250) == 0)
-        'Evaluating full loss at iteration: '
+    if (mod(t - 1, 125) == 0)
+        'Evaluating full loss before iteration: '
         t
         full_loss(k) = net.loss(x_data, u_data, false);
         training_iter(k) = t;
         full_loss(k)
         k = k + 1;
     end
+    
+    idxs = randperm(batch_size);
+    idxs = idxs(1:minibatch);
+    [loss, gradient] = net.forward_backward(x_data(:, idxs), u_data(:, idxs), false, true);
+
+    cur_paramvec = net.get_flat_paramvec();
+    [delta, meansquare] = rmsprop_update(gradient, meansquare, epsilon, tau);
+%     meansquare = epsilon_rmsprop * meansquare + (1 - epsilon_rmsprop) * norm(gradlosses, 2) ^ 2;
+%     delta_paramvec = stepsize * gradlosses;
+
+    meansquares(t, :) = meansquare;
+    gradients(t, :) = gradient;
+    meansquaresnorms(t) = norm(meansquare);
+    gradnorms(t) = norm(gradient);
+    new_paramvec = cur_paramvec - stepsize * delta;
+    net.set_flat_paramvec(new_paramvec);
+
     if (mod(t, num_steps_decay) == 0)
         'Stepsize decay'
         stepsize = stepsize * stepsize_decay;
     end
 end
-%
+%%
 figure();
 plot(training_iter, full_loss);
 xlabel('Training iteration');
 ylabel('Loss'); 
+% 
+% figure();
+% plot(meansquaresnorms);
+% xlabel('Training iteration');
+% ylabel('meansquare norms');
+% 
+% figure();
+% plot(gradnorms);
+% xlabel('Training iteration');
+% ylabel('gradient norms');
+
+rng(10);
+figure();
+plotidxs = randperm(numparams);
+plotidxs = plotidxs(1:5);
+plot(gradients(:, plotidxs));
+xlabel('Training iteration');
+ylabel('gradient traces');
 
 figure();
-plot(meansquaresnorms);
+plot((meansquares(:, plotidxs)));
 xlabel('Training iteration');
-ylabel('meansquare norms');
-
-figure();
-plot(gradnorms);
-xlabel('Training iteration');
-ylabel('gradient norms');
-
+ylabel('meansquare traces');
 
 %
 
@@ -111,6 +134,7 @@ ylabel('gradient norms');
 iters = 100;
 
 x_init = zeros(12, 1);
+
 
 x_trajs = cell(1, iters);
 x_tentative_trajs = cell(1, iters);
@@ -197,7 +221,7 @@ end
 % TODO:  REPORT THESE HISTOGRAMS
 
 figure();
-histogram(pos_error_end_states, linspace(0, max(max(pos_error_end_states, 2)), 21));
+histogram(pos_error_end_states, linspace(0, 10, 21));
 ylabel('pos errors');
 
 figure();

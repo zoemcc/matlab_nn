@@ -30,7 +30,7 @@ classdef multinomial_logistic_loss_layer < layer
                 prob = input(label, i);
                 gradbottom(label, i) = scale / prob;
             end
-            result = {grabottom, []};
+            result = {gradbottom, []};
         end
         
         function e = change_dimensions(e, Di)
