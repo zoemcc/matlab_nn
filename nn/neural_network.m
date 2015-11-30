@@ -1,9 +1,8 @@
 classdef neural_network
-    %NN Summary of this class goes here
-    %   Detailed explanation goes here
+    %neural_network Simple neural network class
+    % for feedforward neural nets
     
     properties
-        %variable_list
         params
         layers
         Dinput
@@ -13,10 +12,11 @@ classdef neural_network
     
     methods
         function nn = neural_network(layers, Dinput)
+            % constructor
+            % layers should be a cell array of layers
 
             % Set input and output dimensionality.
             nn.Dinput = Dinput;
-
 
             % Set up layers in order.
             nn.layers = layers;
@@ -29,11 +29,15 @@ classdef neural_network
                 prev_dim = layer.Do;
                 nn.num_params = nn.num_params + size(layer.get_paramvec(), 1);
             end;
-            
-
+           
         end
         
         function result = forward(nn, input, fullresult)
+            % evaluate the neural network on some input
+            % and returns the output before the loss layer
+            % fullresult is whether to return a list of all
+            % intermediate computations or just the last output before 
+            % the loss
             intermediates = {input};
             numlayers = size(nn.layers, 2);
             for i=1:(numlayers - 1),
@@ -41,7 +45,7 @@ classdef neural_network
                 if (~strcmp(layer.type, 'euclidean_loss'))
                     intermediates{i + 1} = layer.forward(intermediates{i});
                 else
-                    % TODO: error
+                    fprint('Loss layer encountered before the last layer.  This net is constructed wrong. \n');
                 end
             end;
             if fullresult
@@ -52,6 +56,10 @@ classdef neural_network
         end
         
         function result = loss(nn, input, target, fullresult)
+            % evaluate the neural network on some input
+            % and returns the loss between the output and the target
+            % fullresult is whether to return a list of all
+            % intermediate computations or just the loss
             intermediate = nn.forward(input, fullresult);
             layer = nn.layers{end};
             numlayers = size(nn.layers, 2);
@@ -63,13 +71,22 @@ classdef neural_network
                     result = layer.forward(intermediate, target);
                 end
             else
-                'ahhh! no loss layer at the end!'
-                    % TODO: error
+                fprint('The last layer is not a loss layer.  This net is constructed wrong. \n');
             end
             
         end
         
         function [loss, gradlosses] = forward_backward(nn, input, target, fullresult, flat_grad)
+            % evaluate the neural network on some input
+            % and returns the loss between the output and the target
+            % and performs backpropagation
+            % in order to calculate the gradient of the loss with respect
+            % to the parameters of the neural network
+            % fullresult is whether to return a list of all
+            % intermediate computations or just the loss
+            % flat_grad is true to return the gradient as one
+            % concatenated parameter vector or false to return 
+            % a cell array of each layers' parameter gradients
             forwards = nn.loss(input, target, true);
             numlayers = size(nn.layers, 2);
             intermediates = cell(1, numlayers + 1);
@@ -85,11 +102,7 @@ classdef neural_network
                 end
                 
             end;
-%             if fullresult
-%                 result = intermediates(2:end);
-%             else
-%                 result = intermediates{end};
-%             end
+
             if flat_grad
                 gradlosses = zeros(nn.num_params, 1);
                 cur_index = 1;
@@ -105,10 +118,16 @@ classdef neural_network
                     gradlosses{i} = intermediates{i}{2};
                 end
             end
-            loss = forwards{end};
+            if fullresult
+                loss = forwards;
+            else
+                loss = forwards{end};
+            end
         end
         
         function paramvec = get_flat_paramvec(nn)
+            % returns a parameter vector of the neural network's
+            % entire parameter set
             paramvec = zeros(nn.num_params, 1);
             numlayers = size(nn.layers, 2);
             cur_index = 1;
@@ -122,11 +141,11 @@ classdef neural_network
         end
         
         function nn = set_flat_paramvec(nn, paramvec)
+            % sets the neural networks entire parameter set
+            % with paramvec input
             if (size(paramvec, 1) == nn.num_params)
             else
-                'num params and dim of paramvec are not equal. error.'
-%                 size(paramvec, 1)
-%                 nn.num_params
+                fprint('num_params=%i and dim of input paramvec=%i are not equal. The network parameters cannot be set.', nn.num_params, size(paramvec,1));
             end
             numlayers = size(nn.layers, 2);
             cur_index = 1;

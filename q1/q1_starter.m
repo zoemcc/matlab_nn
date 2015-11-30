@@ -19,10 +19,7 @@ y = [1; -1; 0];
 [ v, vp, error, sqerror, sqerror_bar, error_bar, vp_bar, ...
   v_bar, y_bar, b_bar, A_bar, x_bar ] ...
     = simple_backprop_net( x, y, A, b );
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % TODO: TAKEOUT THIS CODE BEFORE RELEASE
@@ -57,7 +54,7 @@ gradyError = grad_y - y_bar
 % TODO: REPORT the
 % error_bar_test, vp_bar_test, v_bar_test, y_bar_test,
 % b_bar_test, A_bar_test, x_bar_test 
-% variables in a table from the following calculations: 
+% variables from the following calculations: 
 
 x_test = [1; -1];
 A_test = [2 -1; 
@@ -68,7 +65,6 @@ y_test = [1; 2];
   error_bar_test, vp_bar_test, v_bar_test, y_bar_test, ...
   b_bar_test, A_bar_test, x_bar_test ] ...
     = simple_backprop_net( x_test, y_test, A_test, b_test );
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%

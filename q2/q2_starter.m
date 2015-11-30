@@ -82,7 +82,6 @@ meansquare = zeros(numparams, 1);
 
 % TODO: YOUR CODE IN THIS FUNCTION
 [delta, meansquare] = rmsprop_update(gradient, meansquare, epsilon, tau);
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -90,13 +89,12 @@ meansquare = zeros(numparams, 1);
 save('q2_solution.mat', 'delta', 'meansquare');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%
 % the following code shows how to use the neural net library to 
 % perform rmsprop descent based optimization
 
-stepsize = 0.1;
-T = 30;
-losses = zeros(T + 1, 1);
+stepsize = 0.003;
+T = 600;
+losses = zeros(T, 1);
 
 meansquare = zeros(numparams, 1);
 gradients = zeros(T, numparams);
@@ -114,20 +112,25 @@ for t = 1:T
     meansquares(t, :) = meansquare;
     deltas(t, :) = delta;
     
-    % perform update rule using old parameters
-    new_paramvec = net.get_flat_paramvec() - stepsize * gradient;
+    % perform update rule using old parameters and rmsprop update
+    new_paramvec = net.get_flat_paramvec() - stepsize * delta;
     
     % set new parameters
     net.set_flat_paramvec(new_paramvec);
 end
-losses(T + 1) = loss;
 
 % plots to see the parameters converge
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TODO:  REPORT THIS PLOT
 figure();
 plot(losses);
 xlabel('Training iteration');
 ylabel('Loss');
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% you don't need to report these plots but they
+% are beautiful and hopefully lend intuition
 
 figure();
 for id = 1:numparams
@@ -155,7 +158,7 @@ ylabel('deltas');
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% TODO: REPORT the delta_test variable
+% TODO: REPORT the delta2_test variable
 x_test = reshape(linspace(-1, 1, 4), 2, 2);
 target_test = -reshape(linspace(-2, 0, 4), 2, 2);
 
@@ -164,11 +167,14 @@ net.set_flat_paramvec(theta_test);
 
 meansquare_test = zeros(numparams, 1);
 [loss, gradient_test] = net.forward_backward(x_test, target_test, false, true);
-[delta_test, meansquare_test] = rmsprop_update(gradient_test, meansquare_test, epsilon, tau);
-
+[delta1_test, meansquare_test] = rmsprop_update(gradient_test, meansquare_test, epsilon, tau);
+new_paramvec = net.get_flat_paramvec() - stepsize * delta1_test;
+net.set_flat_paramvec(new_paramvec);
+[loss, gradient_test] = net.forward_backward(x_test, target_test, false, true);
+[delta2_test, meansquare_test] = rmsprop_update(gradient_test, meansquare_test, epsilon, tau);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % TODO: TAKEOUT THIS CODE BEFORE RELEASE
-save('q2_solution_test.mat', 'delta_test');
+save('q2_solution_test.mat', 'delta2_test');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%

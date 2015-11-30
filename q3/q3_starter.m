@@ -1,29 +1,62 @@
 % q3_starter.m
+% You will need to fill out the TODOs in this script.
+% You will design a neural network architecture and 
+% hyperparameters to control a helicopter to 
+% travel to nearby position and orientation goals
 
-% load neural net library
+% load neural net library and rmsprop
 addpath ../nn
-clear all
+addpath ../q2
 
 % load heli sim stuff
-
 addpath heli_draw_self_contained
 addpath heli_draw_self_contained/orientation
 addpath utils_rotations;
 
-
-% addpath ../hw3/q2_starter/
-
 f = @sim_heli;
 dt = 0.1; % we work with discrete time
+u_min = -ones(4, 1);
+u_max = ones(4, 1);
 
 
-%
 % set up nn supervised training
 
+% load dataset
 load('gps_trajopt_dataset_processed.mat');
 
-batch_size = size(x_data, 2);
+% split data into validation and training sets.
+% everything past a threshold will be validation and everything
+% before, training
 
+data_size = size(x_data, 2);
+training_size = floor(0.9 * data_size);
+validation_size = data_size - training_size;
+validation_idxs = training_size + 1 : data_size;
+
+rng(10);
+
+% Construct neural network architecture here.
+
+% Reasonable networks are typically have between 3 and 5 affine
+% layers with rectifiers in between,
+% and between 20 and 50 output dimensions per layer.
+% Try experimenting with different architectures
+% and weight decay rates
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TODO: YOUR CODE HERE
+% layers = {};
+% layers{1} = affine_layer(30, 0.01);
+% layers{2} = rectifier_layer();
+
+% don't change the dimension of the last affine layer
+% and end the neural net with a euclidean loss layer
+% layers{3} = affine_layer(4, 0.01);
+% layers{4} = euclidean_loss_layer();
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TODO: REMOVE BEFORE RELEASE
 layers = {};
 layers{1} = affine_layer(30, 0.01);
 layers{2} = rectifier_layer();
@@ -33,108 +66,119 @@ layers{5} = affine_layer(30, 0.01);
 layers{6} = rectifier_layer();
 layers{7} = affine_layer(4, 0.01);
 layers{8} = euclidean_loss_layer();
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% the input to the neural net is 15 dimensional
 net = neural_network(layers, 15);
-
 numlayers = size(net.layers, 2);
 numparams = net.num_params;
 
-%
-stepsize = 0.0005;
+% experiment with these parameters for different 
+% training schemes
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TODO: YOUR CODE HERE
 T = 10000;
-minibatch = 50;
-losses = zeros(T + 1, 1);
-
-stepsize_decay = 0.1;
+stepsize = 0.005; % try different orders of magnitude
+minibatch = 50; % larger minibatches smooth the descent but take longer
+stepsize_decay = 0.1; % multiplies the stepsize by this every 
+% num_steps_decay iterations
 num_steps_decay = 2500;
 
-% meansquare = 1;
-meansquare = zeros(net.num_params, 1);
-epsilon_rmsprop = 0.9;
+% rmsprop variables, you could experiment with epsilon as well 
+epsilon = 0.9;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+tau = 1e-10;
 
+% training initialization
 k = 1;
-full_loss = [];
+validation_loss = [];
 training_iter = [];
-meansquaresnorms = zeros(T, 1);
-gradnorms = zeros(T, 1);
+
+meansquare = zeros(net.num_params, 1);
+losses = zeros(T + 1, 1);
 gradients = zeros(T, numparams);
 meansquares = zeros(T, numparams);
-
-rng(10);
+deltas = zeros(T, numparams);
 
 for t = 1:T
-    if (mod(t - 1, 125) == 0)
-        'Evaluating full loss before iteration: '
-        t
-        full_loss(k) = net.loss(x_data, u_data, false);
+    
+    % evaluate validation loss periodically
+    if (mod(t - 1, 250) == 0) 
+        fprintf('Evaluating validation loss before iteration: %i \n', t);
+        validation_loss(k) = net.loss(x_data(:, validation_idxs), u_data(:, validation_idxs), false);
         training_iter(k) = t;
-        full_loss(k)
+        fprintf('validation loss: %f \n', validation_loss(k));
         k = k + 1;
     end
     
-    idxs = randperm(batch_size);
+    % grab a random minibatch (subset of the training dataset) 
+    % and perform a descent step on that minibatch
+    idxs = randperm(training_size);
     idxs = idxs(1:minibatch);
     [loss, gradient] = net.forward_backward(x_data(:, idxs), u_data(:, idxs), false, true);
-
-    cur_paramvec = net.get_flat_paramvec();
     [delta, meansquare] = rmsprop_update(gradient, meansquare, epsilon, tau);
-%     meansquare = epsilon_rmsprop * meansquare + (1 - epsilon_rmsprop) * norm(gradlosses, 2) ^ 2;
-%     delta_paramvec = stepsize * gradlosses;
 
+    % record result
     meansquares(t, :) = meansquare;
     gradients(t, :) = gradient;
-    meansquaresnorms(t) = norm(meansquare);
-    gradnorms(t) = norm(gradient);
+    deltas(t, :) = delta; 
+    
+    % update params
+    cur_paramvec = net.get_flat_paramvec();
     new_paramvec = cur_paramvec - stepsize * delta;
     net.set_flat_paramvec(new_paramvec);
 
+    % periodically decrease the learning rate by some schedule
     if (mod(t, num_steps_decay) == 0)
-        'Stepsize decay'
+        fprintf('Stepsize decay by: %f \n', stepsize_decay);
         stepsize = stepsize * stepsize_decay;
     end
 end
-%%
-figure();
-plot(training_iter, full_loss);
-xlabel('Training iteration');
-ylabel('Loss'); 
-% 
-% figure();
-% plot(meansquaresnorms);
-% xlabel('Training iteration');
-% ylabel('meansquare norms');
-% 
-% figure();
-% plot(gradnorms);
-% xlabel('Training iteration');
-% ylabel('gradient norms');
+%% Learning plots
 
-rng(10);
+% the validation loss should go roughly below 0.05 for good control
+% performance
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TODO:  REPORT THIS PLOT
 figure();
+plot(training_iter, validation_loss);
+xlabel('Training iteration');
+ylabel('Validation Loss'); 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% these other plots are for your convenience and understanding
+
+% plot a random subset of the parameter dimensions
+rng(10);
 plotidxs = randperm(numparams);
 plotidxs = plotidxs(1:5);
+
+figure();
 plot(gradients(:, plotidxs));
 xlabel('Training iteration');
-ylabel('gradient traces');
+ylabel('Gradient traces');
 
 figure();
 plot((meansquares(:, plotidxs)));
 xlabel('Training iteration');
-ylabel('meansquare traces');
+ylabel('Meansquare traces');
 
-%
+figure();
+plot((deltas(:, plotidxs)));
+xlabel('Training iteration');
+ylabel('Delta traces');
 
 
 %%
-
 % Execution and evaluation phase
 % The helicopter will be put in an initial state
-% and the 
+% and then given a nearby goal.
+% The neural net will be given that state and goal and 
+% tries to control towards that goal
 
 iters = 100;
 
 x_init = zeros(12, 1);
-
 
 x_trajs = cell(1, iters);
 x_tentative_trajs = cell(1, iters);
@@ -148,12 +192,10 @@ exp = 26;
 
 rng(exp);
 
-
-%
 i = 1;
-fails = 0;
 while (i <= iters)
 
+    % generate random nearby goal
     pos_error_vec = randn(3, 1);
     pos_error_vec_unit = pos_error_vec / norm(pos_error_vec + 1e-8);
     pos_error_mag = randn(1) + 2;
@@ -163,70 +205,63 @@ while (i <= iters)
     axis_error_vec_unit = axis_error_vec / norm(axis_error_vec + 1e-8);
     axis_error_mag = rand(1) + 0.01;
     axis_end_state = axis_error_vec_unit * axis_error_mag + x_init(10:12);
-
-
         
-        % get trajectory time
-        [x_tentative, u_tentative] = basic_motion_traj(x_init, pos_end_state, axis_end_state, dt);
-        % neural net execution
-        T = size(x_tentative, 2);
-        x_sim = zeros(12, T);
-        x_sim(:,1) = x_init;
-        x_sim_nn = zeros(15, T);
-        
+    % get trajectory time and desired trajectory
+    [x_tentative, u_tentative] = basic_motion_traj(x_init, pos_end_state, axis_end_state, dt);
+    T = size(x_tentative, 2);
 
-        u_sim = zeros(4, T - 1);
-        for t=1:T-1
-            x_sim_nn(:, t) = nn_input_heli_transform(x_sim(:, t), pos_end_state, axis_end_state);
-            u_sim(:,t) = net.forward(x_sim_nn(:, t), false);
-            x_sim(:,t+1) = f(x_sim(:,t), u_sim(:,t), dt);
-        end
-        x_sim_nn(:, T) = nn_input_heli_transform(x_sim(:, t), pos_end_state, axis_end_state);
-        
-        pos_error_at_end = x_sim_nn(4:6, end);
-        pos_error_end_states(i) = norm(pos_error_at_end);
-        axis_error_at_end = x_sim(10:12, end) - axis_end_state;
-        axis_error_end_states(i) = norm(axis_error_at_end);
-        
-        new_x_init = x_sim(:, end);
-        new_x_init(4:6) = 0;
+    % neural net execution
+    x_sim = zeros(12, T);
+    x_sim(:,1) = x_init;
+    x_sim_nn = zeros(15, T);
 
-        x_init = new_x_init;
+    u_sim = zeros(4, T - 1);
+    for t=1:T-1
+        % process state to make it feedable to the neural net
+        x_sim_nn(:, t) = nn_input_heli_transform(x_sim(:, t), pos_end_state, axis_end_state);
+        % apply net and clamp the output to the feasible region
+        u_sim(:,t) = clamp_control(net.forward(x_sim_nn(:, t), false), u_min, u_max);
+        % forward simulate
+        x_sim(:,t+1) = f(x_sim(:,t), u_sim(:,t), dt);
+    end
+    x_sim_nn(:, T) = nn_input_heli_transform(x_sim(:, t), pos_end_state, axis_end_state);
 
-        x_trajs{i} = x_sim;
-        x_tentative_trajs{i} = x_tentative;
-        u_trajs{i} = u_sim;
-        pos_end_states{i} = pos_end_state;
-        axis_end_states{i} = axis_end_state;
+    % extract errors
+    pos_error_at_end = x_sim_nn(4:6, end);
+    pos_error_end_states(i) = norm(pos_error_at_end);
+    axis_error_at_end = x_sim(10:12, end) - axis_end_state;
+    axis_error_end_states(i) = norm(axis_error_at_end);
 
+    % recenter position
+    new_x_init = x_sim(:, end);
+    new_x_init(4:6) = 0;
+    x_init = new_x_init;
 
-        i = i + 1
-        fails = 0;
-%     catch ME
-%         'trying again! failed optimization!'
-%         fails = fails + 1
-%         if (fails > 3)
-%             x_init = zeros(12, 1);
-%             'resetting x_init since we keep failing!'
-%         end
-%     end
+    % record trajectories
+    x_trajs{i} = x_sim;
+    x_tentative_trajs{i} = x_tentative;
+    u_trajs{i} = u_sim;
+    pos_end_states{i} = pos_end_state;
+    axis_end_states{i} = axis_end_state;
 
-
-    
-
+    fprintf('Flight iteration %i complete.\n', i);
+    i = i + 1;
 end
 %
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % TODO:  REPORT THESE HISTOGRAMS
+% Don't change the bins of the histograms for easy grading
+% Try to get the position error down below 1.5 most of the time
+% and the orientation error down below  1 most of the time
 
 figure();
-histogram(pos_error_end_states, linspace(0, 10, 21));
+histogram(pos_error_end_states, linspace(0, 10, 41));
 ylabel('pos errors');
 
 figure();
-histogram(axis_error_end_states, 10);
-ylabel('axis errors');
+histogram(axis_error_end_states, linspace(0, 10, 41));
+ylabel('orientation errors');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

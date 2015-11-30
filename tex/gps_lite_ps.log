@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2013.4.8)  29 NOV 2015 01:44
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2013.4.8)  29 NOV 2015 21:22
 entering extended mode
  %&-line parsing enabled.
 **gps_lite_ps.tex
@@ -328,40 +328,38 @@ Underfull \hbox (badness 10000) in paragraph at lines 147--153
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 154--165
+Underfull \hbox (badness 10000) in paragraph at lines 154--166
 
  []
 
 [2]
-Underfull \hbox (badness 10000) in paragraph at lines 202--208
+Underfull \hbox (badness 10000) in paragraph at lines 203--211
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 219--222
+Underfull \hbox (badness 10000) in paragraph at lines 222--225
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 223--234
+Underfull \hbox (badness 10000) in paragraph at lines 226--237
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 235--240
+Underfull \hbox (badness 10000) in paragraph at lines 238--244
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 241--251
+Underfull \hbox (badness 10000) in paragraph at lines 245--255
 
  []
 
 [3]
-Overfull \hbox (43.66467pt too wide) in paragraph at lines 258--260
-\OT1/cmr/m/n/10 code for Ques-tion 2 is in the mat-lab path. Four sets of ob-st
-a-cles are pro-vided: []\OT1/cmtt/m/n/10 obstacles{0,1,2,3,4}.mat\OT1/cmr/m/n/1
-0 .
+Underfull \hbox (badness 10000) in paragraph at lines 256--262
+
  []
 
 [4] (./gps_lite_ps.aux) ) 
@@ -385,7 +383,7 @@ type1/public/amsfonts/cm/cmr10.pfb></usr/share/texmf-texlive/fonts/type1/public
 texmf-texlive/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texmf-texliv
 e/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/share/texmf-texlive/fonts/typ
 e1/public/amsfonts/symbols/msbm10.pfb>
-Output written on gps_lite_ps.pdf (4 pages, 164594 bytes).
+Output written on gps_lite_ps.pdf (4 pages, 162606 bytes).
 PDF statistics:
  75 PDF objects out of 1000 (max. 8388607)
  5 named destinations out of 1000 (max. 500000)

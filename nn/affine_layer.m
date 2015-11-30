@@ -1,6 +1,7 @@
 classdef affine_layer < layer
-    %AFFINE_LAYER Summary of this class goes here
-    %   Detailed explanation goes here
+    %AFFINE_LAYER An affine layer is a neural network 
+    % layer that has a matrix multiply to the input 
+    % and adds a bias vector
     
     properties
         W
@@ -15,6 +16,8 @@ classdef affine_layer < layer
             end
             layer.Do = Do;
             zeros_out = zeros(Do * Do, 1);
+            
+            % initialize the parameters randomly
             tallw = normrnd(zeros_out, 0.08 * ones(Do * Do, 1));
             layer.W = reshape(tallw, Do, Do);
             layer.b = normrnd(zeros(Do, 1), 0.08 * ones(Do, 1));
@@ -32,6 +35,8 @@ classdef affine_layer < layer
         
         function result = backward(e, input, gradoutput)
             input_bar = e.W' * gradoutput;
+            % weight decay is added in here but not in the output loss
+            % as a regularization term
             W_bar = gradoutput * input' + e.W * e.weight_decay;
             [Do, Di] = size(e.W);
             b_bar = sum(gradoutput, 2);

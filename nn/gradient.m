@@ -1,6 +1,5 @@
 function [ grad_x ] = gradient( func, x, eps)
-%gradient Summary of this function goes here
-%   Detailed explanation goes here
+%gradient symmetric finite differences code
 
 
     dimx1 = size(x, 1);

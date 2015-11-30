@@ -53,11 +53,11 @@ Problem Set \\
 
 
 \ruleskip
-Deliverable:  pdf write-up by Wednesday October 7th, 11:59pm,
+Deliverable:  pdf write-up by [TODO: Pieter insert due date], 11:59pm,
 submitted through Gradescope.   {\bf Your pdf write-up should be
-  typeset as follows: answers to Question 1(a), 1(b), 1(c), and 1(d)
-  an page 1; answer to Question 2 on pages 2 and 3;  answer to
-  Question 3 on page 4; answer to Question 4 on page 5.   Make sure to
+  typeset as follows: answers to Question 1
+  an page 1; answer to Question 2 on pages 2;  answer to
+  Question 3 on page 3.   Make sure to
   follow the requested typesetting, and insert blank regions (or blank pages) as necessary.  Thanks!}
 
 
@@ -113,7 +113,7 @@ For more detail there are a host of online resources available by searching for 
 A neural network is a mathematical function that is constructed by composing simple mathematical functions such as matrix multiplication, addition, and simple nonlinearities.
 Typically, this function inputs a vector of some dimension and outputs a vector of some other (possibly the same) dimension and is parameterized by variables in the function, such as the matrices to multiply by.
 This is a general and flexible class of functions when there are many parameters and several layers of composition.
-The collection of operations in a neural network forms a computation graph where each node is an input, intermediate, or output variable and the edges into a node are the inputs to that particular computation.
+The collection of operations in a neural network forms a computation graph where each node is an input, intermediate, or output variable and the edges into a node are the input variables to that particular computation.
 \\
 
 In order to utilize neural networks, we wish to optimize the parameters of some fixed neural network structure in order to minimize some scalar loss function on the output of the neural network that measures
@@ -141,11 +141,11 @@ Then we can utilize the chain rule of calculus to calculate:
 where the sum is over the children $v_j$ of $v_i$.
 The first quantity we have already computed, and so we only need to calculate $\frac{\partial v_j}{\partial v_i}$.
 That quantity is simply the derivative of one intermediate calculation in the network with respect to that calculation's inputs.
-We restrict ourselves to the composition of simple functions, where we know the derivatives in closed form, and so we can calculate that efficiently.
+We restrict ourselves to the composition of simple functions, where we can calculate the derivatives in closed form, and so we can compute that efficiently.
 This process proceeds until we have calculated $\frac{\partial L}{\partial \theta_i}$ for each parameter $\theta_i$ and then we have the gradient we desire.
 
 Asymptotically, this allows us to compute the gradient with respect to every parameter (even every variable in the graph) with the same computational complexity as one function evaluation.
-This is incredible since the network could have a billion of parameters and evaluating the approximate gradient would cost two billion function evaluations using finite differences but here we 
+This is incredible since the network could have a billion parameters and evaluating the approximate gradient would cost two billion function evaluations using finite differences but here we 
 get the exact gradient for no more than the cost of 5 function evaluations (the constant varies slightly based off of which functions are used but most are less than 5).
 The tradeoff is that the calculation of $\frac{\partial v_j}{\partial v_i}$ often requires the value of $v_i$ and $v_j$'s other inputs, so we have to record the intermediate variables in memory
 where we could otherwise discard them after using them.
@@ -184,14 +184,14 @@ The RMSprop update rule is as follows.
 Let $t$ be the iteration and $\nabla f^t(x^t) \in \mathbb{R}^n$ be the gradient of some function $f$ at the current point $x^t$ and $\Delta^t \in \mathbb{R}^n$ 
 be the rmsprop descent vector.
 Let $v_{ms}^t \in \mathbb{R}^n$ be the mean square vector and $\epsilon \in (0, 1)$.
-Then:
+Then we define:
 
 \[
     v_{ms}^{t} = (1 - \epsilon) (\nabla f^t)^2 + \epsilon v_{ms}^{t - 1}
 \]
 
 for the elementwise square of $\nabla f ^t$.
-Then, for some small $\tau \sim 1e-8$ to prevent numerical overflow,
+Then, for some small $\tau \sim 1e-10$ to prevent numerical overflow, we define:
 \[
     \Delta^t = \frac{\nabla f^t} {\sqrt{v_{ms}^t} + \tau}
 \]
@@ -200,12 +200,13 @@ where the square root is elementwise and the division is elementwise between $\n
 Then the RMSProp update rule is:
 $x^{t+1} = x^t - \alpha \Delta^t$ for some global learning rate $\alpha \in \mathbb{R}_+$.
 
-You will be using a limited but simple neural net library for this and question 3.
+{\bf Question} You will be using a limited but simple neural net library for this and question 3.
 The neural network library is limited to feedforward networks, those that have one vector
 input at the bottom and all functions are applied on to the previous function's output.
 Implement the RMSProp update rule in \verb|rmsprop_update.m| and use \verb|q2_starter.m| to verify its correctness.
 Look for \verb|TODO| and \verb|REPORT| for the parts you need to write.
-Report the value of the RMSProp update for \verb|delta_test| in the code.
+Report the value of the RMSProp update for \verb|delta2_test| in the code and the learning rate plot.
+Don't forget to admire the beautiful plots that are generated.
 \\
 
 
@@ -222,7 +223,7 @@ In this question you get to train a neural network policy for helicopters.
 We have provided a dataset of 3000 simulated helicopter trajectories that were generated from the following process:
 \\
 
-The helicopter starts at some initial position.  
+The helicopter starts at some initial position and orientation with zero velocity.  
 Generate a nearby goal position and orientation relative to the current position and orientation.
 A tentative trajectory is generated that interpolates between the current and goal positions with extra zero velocity padding around the ends 
 that has a proportional duration to the magnitude of the distance between the start and goal positions.
@@ -237,6 +238,7 @@ If 3 failures happen from the same state, the state is reset to the initial stat
 This process was chosen to generate a wide range of (current state, current goal, control action) triplets.
 You will utilize the neural network library and the above dataset as supervision in order to train a neural network that inputs current state 
 and current goal and outputs control action to try to mimic what the trajectory optimizer would do in that situation.
+This training will be performed using your RMSProp implementation in Q2.
 The result is a neural network control policy that can be used to guide the helicopter to nearby positions for very little computational cost.
 \\
 
@@ -248,16 +250,18 @@ wouldn't necessarily be able to recover unless there was extra training data for
 We generate a large diversity of training data from many initial states to many goals, however, so that hopefully the neural net stays within the regime of states that we have training data for
 and errors don't compound.
 Note also that the formulation presented here where the neural network is trying to minimize mean squared distance from its control output to the trajectory optimization's control output is 
-different from the guided policy search presentation in class since the form of trajectory optimization utilized in problem set 3 is deterministic instead of probabilistic.
+different from the guided policy search presentation in class since the form of trajectory optimization utilized in problem set 3 is deterministic instead of stochastic.
 \\
 
-Experiment with different neural network architectures using the provided neural network library and different values of stepsizes and minibatch sizes and epsilons for rmsprop to train the neural network.
+{\bf Question} Experiment with different neural network architectures and hyperparameters using the provided neural network library and different values of stepsizes 
+and minibatch sizes and epsilons for rmsprop to train the neural network.
+Provide the desired reports and write a paragraph or two about the different experiments you ran.
 You can visualize the resulting trajectories for executions of the neural net and tentative trajectories that the trajectory optimizer would try to follow in the code.
 Report the plot showing learning performance over iteration count and the two histograms showing position error and orientation error magnitudes after executing many trajectories.
 \\
 
 See \verb|q3_starter.m| and look for \verb|TODO| and \verb|REPORT| for the parts you need to write.
-Note this questions relies on your solution to Question 2, and you'll need to make sure that your code for Question 2 is in the matlab path.
+Note this questions relies on your solution to Question 2, and you'll need to make sure that your code for Question 2 is in the matlab path (should happen by default unless your paths are nonstandard).
 
 
 
