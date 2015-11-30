@@ -21,13 +21,6 @@ y = [1; -1; 0];
     = simple_backprop_net( x, y, A, b );
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% TODO: TAKEOUT THIS CODE BEFORE RELEASE
-save('q1_solution.mat', 'error_bar', 'vp_bar', ...
-    'v_bar', 'y_bar', 'b_bar', 'A_bar', 'x_bar');
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
 % grad checks -- all the printed variables should be 
 % approximately 0.0 to some tolerance
 % use these printouts to debug your gradient calculations
@@ -65,11 +58,4 @@ y_test = [1; 2];
   error_bar_test, vp_bar_test, v_bar_test, y_bar_test, ...
   b_bar_test, A_bar_test, x_bar_test ] ...
     = simple_backprop_net( x_test, y_test, A_test, b_test );
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% TODO: TAKEOUT THIS CODE BEFORE RELEASE
-save('q1_test_solution.mat', 'error_bar_test', 'vp_bar_test', ...
-    'v_bar_test', 'y_bar_test', ...
-     'b_bar_test', 'A_bar_test', 'x_bar_test');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -23,28 +23,17 @@ sqerror = 0.5 * (error)' * error;
 % variable_bar means 
 %    d(sqerror) / d(variable)
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% TODO: TAKEOUT THIS CODE BEFORE RELEASE
-sqerror_bar = 1;
-error_bar   = error;
-y_bar       = -error;
-vp_bar      = (v > 0) .* error_bar;
-v_bar       = vp_bar;
-b_bar       = v_bar;
-A_bar       = v_bar * x';
-x_bar       = A' * v_bar;
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % TODO: YOUR CODE HERE
-% sqerror_bar = 1;
-% error_bar   =     % TODO: YOUR CODE HERE
-% y_bar       =     % TODO: YOUR CODE HERE
-% vp_bar      =     % TODO: YOUR CODE HERE
-% v_bar       =     % TODO: YOUR CODE HERE
-% b_bar       =     % TODO: YOUR CODE HERE
-% A_bar       =     % TODO: YOUR CODE HERE
-% x_bar       =     % TODO: YOUR CODE HERE
+sqerror_bar = 1;
+error_bar   =     % TODO: YOUR CODE HERE
+y_bar       =     % TODO: YOUR CODE HERE
+vp_bar      =     % TODO: YOUR CODE HERE
+v_bar       =     % TODO: YOUR CODE HERE
+b_bar       =     % TODO: YOUR CODE HERE
+A_bar       =     % TODO: YOUR CODE HERE
+x_bar       =     % TODO: YOUR CODE HERE
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 end
