@@ -45,27 +45,16 @@ rng(10);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % TODO: YOUR CODE HERE
-% layers = {};
-% layers{1} = affine_layer(30, 0.01);
-% layers{2} = rectifier_layer();
-
-% don't change the dimension of the last affine layer
-% and end the neural net with a euclidean loss layer
-% layers{3} = affine_layer(4, 0.01);
-% layers{4} = euclidean_loss_layer();
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% TODO: REMOVE BEFORE RELEASE
+% try constructing different neural network architectures
+% for control
 layers = {};
 layers{1} = affine_layer(30, 0.01);
 layers{2} = rectifier_layer();
-layers{3} = affine_layer(40, 0.01);
-layers{4} = rectifier_layer();
-layers{5} = affine_layer(30, 0.01);
-layers{6} = rectifier_layer();
-layers{7} = affine_layer(4, 0.01);
-layers{8} = euclidean_loss_layer();
+
+% don't change the dimension of the last affine layer
+% and end the neural net with a euclidean loss layer
+layers{3} = affine_layer(4, 0.01);
+layers{4} = euclidean_loss_layer();
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % the input to the neural net is 15 dimensional

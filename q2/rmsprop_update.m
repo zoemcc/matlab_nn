@@ -5,14 +5,9 @@ function [ delta, meansquares_new ] = rmsprop_update( gradient, meansquares, eps
 %   
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % TODO: YOUR CODE HERE
-%     meansquares_new =   % TODO: YOUR CODE HERE
-%     delta           =   % TODO: YOUR CODE HERE
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % TODO: REMOVE BEFORE RELEASE
-    meansquares_new = epsilon * meansquares + (1 - epsilon) * gradient .^ 2;
-    delta = gradient ./ (sqrt(meansquares_new) + tau);
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    meansquares_new =   % TODO: YOUR CODE HERE
+    delta           =   % TODO: YOUR CODE HERE
+
 
 end
 

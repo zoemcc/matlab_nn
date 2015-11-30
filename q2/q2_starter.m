@@ -84,10 +84,6 @@ meansquare = zeros(numparams, 1);
 [delta, meansquare] = rmsprop_update(gradient, meansquare, epsilon, tau);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% TAKEOUT THIS CODE BEFORE RELEASE
-save('q2_solution.mat', 'delta', 'meansquare');
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % the following code shows how to use the neural net library to 
 % perform rmsprop descent based optimization
@@ -172,9 +168,4 @@ new_paramvec = net.get_flat_paramvec() - stepsize * delta1_test;
 net.set_flat_paramvec(new_paramvec);
 [loss, gradient_test] = net.forward_backward(x_test, target_test, false, true);
 [delta2_test, meansquare_test] = rmsprop_update(gradient_test, meansquare_test, epsilon, tau);
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% TODO: TAKEOUT THIS CODE BEFORE RELEASE
-save('q2_solution_test.mat', 'delta2_test');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
