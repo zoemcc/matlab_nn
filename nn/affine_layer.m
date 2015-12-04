@@ -37,7 +37,7 @@ classdef affine_layer < layer
             input_bar = e.W' * gradoutput;
             % weight decay is added in here but not in the output loss
             % as a regularization term
-            W_bar = gradoutput * input' + e.W * e.weight_decay;
+            W_bar = gradoutput * input' + e.W * e.weight_decay / size(input, 2);
             [Do, Di] = size(e.W);
             b_bar = sum(gradoutput, 2);
             paramvec_bar = [reshape(W_bar, Do * Di, 1); b_bar];

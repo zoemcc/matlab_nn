@@ -20,14 +20,7 @@ classdef euclidean_loss_layer < layer
         end;
         
         function result = backward(e, input, target, gradoutput)
-            % this is the gradient times the number
-            % of inputs at this timestep.
-            % for some reason rmsprop was not performing
-            % well on the helicopter data unless the gradient
-            % was scaled like this
-            result = {gradoutput * (input - target), []};
-            % this is the true gradient
-%             result = {gradoutput * ((input - target) / size(input, 2)), []};
+            result = {gradoutput * ((input - target) / size(input, 2)), []};
         end
         
         function e = change_dimensions(e, Di)
